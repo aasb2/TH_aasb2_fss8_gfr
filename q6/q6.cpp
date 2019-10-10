@@ -1,60 +1,96 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-
-const int N = 10;
-int ID = -1;
-int RES =0;
-const int MAX_SIZE = 1e5;
-pthread_mutex_t buffer_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t result_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t isReady = PTHREAD_COND_INITIALIZER;
 typedef void*(*FUNCTION)(void *argument);
-template <class T>
+
 struct ARGUMENT{
 	FUNCTION function;
-	T argument;
+	int argument;
 	int id;
 	ARGUMENT(){
 		this->function = nullptr;
-		this->argument = NULL;
+		this->argument = -1;
 		this->id =-1;
 	}
-	ARGUMENT(FUNCTION function, T argument){
+	ARGUMENT(FUNCTION function, int argument, int id){
 		this->function = function;
 		this->argument = argument;
-		this->id = id;
+		this->id =id;
 	}
-	ARGUMENT(FUNCTION function, T argument){
+	ARGUMENT(FUNCTION function, int argument){
 		this->function = function;
 		this->argument = argument;
-		this->id = -1;
+		this->id =-1;
 	}
 };
 
 
-queue<ARGUMENT> BUFFER;
+
+const int N = 10;
+int ID = -1;
+const int MAX_SIZE = 1e5;
+pthread_mutex_t buffer_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t result_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t resultCond[MAX_SIZE];
+pthread_cond_t buffer_empty = PTHREAD_COND_INITIALIZER;
+pthread_cond_t buffer_full = PTHREAD_COND_INITIALIZER;
+pthread_t thread[N];
 int RESULT[MAX_SIZE];
+queue<ARGUMENT> BUFFER;
+int FULL = 0;
+int EMPTY = MAX_SIZE;
+
+
+void init(){
+	for(int i =0; i<MAX_SIZE; i++)
+		resultCond[i] = PTHREAD_COND_INITIALIZER;
+	fill_n(RESULT,MAX_SIZE,-1);
+}
 
 void *funexec(void *argument){
-	return RES++;
+	pthread_mutex_lock(&buffer_mutex);
+		ARGUMENT *arg = (ARGUMENT*)argument;
+		int	id = arg->id;
+		RESULT[id] = id;
+		pthread_cond_signal(&resultCond[id]);
+	pthread_mutex_unlock(&buffer_mutex);
 }
 
 int agendarExecucao(ARGUMENT argument){
-	pthred_mutex_lock(&buffer_mutex);
-	BUFFER.push_back(argument);
+	int id = ID++;
+	argument.id = id;
+	pthread_mutex_lock(&buffer_mutex);
+		while(FULL == MAX_SIZE)
+			pthread_cond_wait(&buffer_full,&buffer_mutex);
+		BUFFER.push(argument);
+		EMPTY--;
+		FULL++;
 	pthread_mutex_unlock(&buffer_mutex);
-	return ++ID;
+	return id;
 }
 
 int pegarResultadoExecucao(int id){
 	
-	pthred_mutex_lock(&buffer_result);
-		while(buffer_result[id] == -1)
-			pthread_cond_wait(&isReady, &buffer_result);
-	pthread_mutex_unlock(&buffer_result);
+	pthread_mutex_lock(&result_mutex);
+		while(RESULT[id] == -1)
+			pthread_cond_wait(&resultCond[id], &result_mutex);
+	pthread_mutex_unlock(&result_mutex);
 }
 
+void *despachante(void *argument){
+	ARGUMENT arg;
+	pthread_mutex_lock(&buffer_mutex);
+		while(BUFFER.empty())
+			pthread_cond_wait(&buffer_empty,&buffer_mutex);
+		arg = BUFFER.front();
+		BUFFER.pop();
+		EMPTY++;
+		FULL--;
+	pthread_mutex_unlock(&buffer_mutex);
+
+
+	pthread_exit(NULL);	
+}
 
 int main(){
 
