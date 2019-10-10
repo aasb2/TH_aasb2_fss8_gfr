@@ -31,10 +31,13 @@ int ID = -1;
 const int MAX_SIZE = 1e5;
 pthread_mutex_t buffer_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t result_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t busy_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 pthread_cond_t resultCond[MAX_SIZE];
 pthread_cond_t buffer_empty = PTHREAD_COND_INITIALIZER;
 pthread_cond_t buffer_full = PTHREAD_COND_INITIALIZER;
 pthread_t thread[N];
+bool busy[N];
 int RESULT[MAX_SIZE];
 queue<ARGUMENT> BUFFER;
 int FULL = 0;
@@ -79,15 +82,31 @@ int pegarResultadoExecucao(int id){
 
 void *despachante(void *argument){
 	ARGUMENT arg;
-	pthread_mutex_lock(&buffer_mutex);
-		while(BUFFER.empty())
-			pthread_cond_wait(&buffer_empty,&buffer_mutex);
-		arg = BUFFER.front();
-		BUFFER.pop();
-		EMPTY++;
-		FULL--;
-	pthread_mutex_unlock(&buffer_mutex);
-
+	while(true){
+		pthread_mutex_lock(&buffer_mutex);
+			while(BUFFER.empty())
+				pthread_cond_wait(&buffer_empty,&buffer_mutex);
+			arg = BUFFER.front();
+			BUFFER.pop();
+			EMPTY++;
+			FULL--;
+		pthread_mutex_unlock(&buffer_mutex);
+		
+		bool isBusy = true;
+		while(isBusy){
+			for(int i=0; i<N && isBusy; i++){
+				pthread_mutex_lock(&busy_mutex);
+				if(!busy[i]){
+					pthread_create(thread[i],NULL,arg.function(),arg);
+					busy[i]= true;
+					isBusy = false;
+				}
+				pthread_mutex_unlock(&busy_mutex);
+			}
+		}
+	}
+	
+	
 
 	pthread_exit(NULL);	
 }
