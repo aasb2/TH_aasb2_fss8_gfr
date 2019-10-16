@@ -11,20 +11,28 @@ typedef char bool;
 long int count =0; //Contador global
 bool isFinished =false; //variável que define quando a execução das threads irão terminar
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 void *counter(void *theadid){
-		
-	while(count < 1000000){ //Soma o contatodo global até 1000000
+	bool stop = false;	
+	while(!stop){ //Soma o contatodo global até 1000000
 		pthread_mutex_lock(&mutex1); //Não permite que duas threads acessem a mesma variável e bloqueia
-		count++;
+		if(count<1000000)
+			count++;
+		else if(count == 1000000){
+			stop = true;
+			if(!isFinished){	
+				isFinished = true;	
+				printf("%ld\n",count);	//Printa o valor 10000000
+			}	
+		}
 		pthread_mutex_unlock(&mutex1); //termina bloqueio
 		
 	}
-	pthread_mutex_lock(&mutex1); //Impede que outra thread acesse primeiro a variável isFinished
-	while(!isFinished){	
-		isFinished = true;	
-		printf("%ld\n",count);	//Printa o valor 10000000
-	}		
-	pthread_mutex_unlock(&mutex1);	//Desbloqueia a região
+	//pthread_mutex_lock(&mutex2); 
+	//Impede que outra thread acesse primeiro a variável isFinished
+		
+	//pthread_mutex_unlock(&mutex2);	
+	//Desbloqueia a região
 
 	pthread_exit(NULL);
 }
