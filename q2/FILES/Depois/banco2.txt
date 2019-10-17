@@ -5,8 +5,6 @@ jose 013 1 0.9
 fatima 014 5 0.6
 ricardo 015 0 0.7
 tales 016 7 1
+claudio 017 104 0.7
 renata 018 1 0.9
 rafael 020 0 0.7
-
-
-

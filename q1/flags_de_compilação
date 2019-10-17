@@ -1,0 +1,1 @@
+gcc q1.cpp -o q1 -pthread

@@ -12,6 +12,7 @@ int min(int a, int b){
 	return a<b ? a : b;
 }
 
+//CALCULA A QUANTIDADE DE NÚMEROS PRIMOS EM UM INTERVALO
 void *prime_numbers_verificator(void *arg){
 	pair<int,int> interval = *((pair<int, int> *) (arg));
 	
@@ -31,6 +32,7 @@ void *prime_numbers_verificator(void *arg){
 
 }
 
+//CALCULA QUAL A MAIOR QUANTIDADE DE DIVISORES NO INTERVALO
 void *divisors_verificator(void * arg){
 	pair<int,int> interval = *((pair<int, int> *) (arg));
 	int current;
@@ -47,6 +49,7 @@ void *divisors_verificator(void * arg){
 	pthread_exit(NULL);
 }
 
+//CALCULA QUAL O NÚMERO NO INTERVALO TEM A MAIOR QUANTIDADE DE DIVISORES
 void *number_with_the_most_divisors_verificator(void * arg){
 	pair<int,int> interval = *((pair<int, int> *) (arg));
 	int current;
@@ -81,17 +84,22 @@ int main(int argc, char *argv[]){
 	cin>>(*interval).first>>(*interval).second;
 	
 	int rc;   
+	//CRIA AS THREADS QUE FARÃO AS TAREFAS SOLICITADAS
 	if(pthread_create(&prime, NULL, prime_numbers_verificator, (void *) interval))
 		exit(-1);
 	if(pthread_create(&divisors_qtd, NULL, divisors_verificator, (void *) interval))
 		exit(-1);
 	if(pthread_create(&divisors_num, NULL,number_with_the_most_divisors_verificator, (void *) interval))
 		exit(-1);
+	
+	//ESPERA QUE ESSAS THREADS TERMINEM
 	pthread_join(prime,NULL);
 	pthread_join(divisors_qtd,NULL);
 	pthread_join(divisors_num,NULL);
+	//IMPRIME O RESULTADO NA TELA
 	cout<<prime_numbers_qtd<<" "<<greatest_divisors_qtd<<" "<<number_with_the_greatest_divisors<<endl;
 	
+	//ENCERRA A THREAD
 	pthread_exit(NULL);
 	return 0;
 }

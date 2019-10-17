@@ -10,21 +10,39 @@ typedef char bool;
 
 long int count =0; //Contador global
 bool isFinished =false; //variável que define quando a execução das threads irão terminar
+
+
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
+
+
+
 void *counter(void *theadid){
-		
-	while(count < 1000000){ //Soma o contatodo global até 1000000
-		pthread_mutex_lock(&mutex1); //Não permite que duas threads acessem a mesma variável e bloqueia
-		count++;
+	bool stop = false;	
+	while(!stop){ //Soma o contatodo global até 1000000
+		//Entra na região crítica
+		pthread_mutex_lock(&mutex1); //Não permite que duas threads acessem a mesma variável e bloqueia se outra thread tentar entrar na região crítica
+		if(count<1000000) // Se o contador estiver em um valor menor que 1000000 soma o 
+			count++;
+		//SE O CONTADOR GLOBAL FOR IGUAL A 1000000
+		if(count == 1000000){
+			//seta que o loop irá parar
+			stop = true;
+			//imprime o valor no terminal e impede que outras threads o façam
+			if(!isFinished){	
+				isFinished = true;	
+				printf("%ld\n",count);	//Printa o valor 10000000
+			}	
+		}
+		//sai da região crítica
 		pthread_mutex_unlock(&mutex1); //termina bloqueio
 		
 	}
-	pthread_mutex_lock(&mutex1); //Impede que outra thread acesse primeiro a variável isFinished
-	while(!isFinished){	
-		isFinished = true;	
-		printf("%ld\n",count);	//Printa o valor 10000000
-	}		
-	pthread_mutex_unlock(&mutex1);	//Desbloqueia a região
+	//pthread_mutex_lock(&mutex2); 
+	//Impede que outra thread acesse primeiro a variável isFinished
+		
+	//pthread_mutex_unlock(&mutex2);	
+	//Desbloqueia a região
 
 	pthread_exit(NULL);
 }
@@ -43,3 +61,4 @@ int main(void){
 	pthread_exit(NULL);
 
 }
+

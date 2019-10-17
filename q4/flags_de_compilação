@@ -1,0 +1,1 @@
+g++ q4.cpp -o q4 -pthread
