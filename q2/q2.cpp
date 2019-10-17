@@ -200,8 +200,10 @@ int main(){
 	//DEPOIS DISSO ESPERA QUE ELAS TERMINEM
 	for(int i=0; i<T; i++){
 		pthread_create(&threadid.at(i),NULL,access_file,NULL);
-		pthread_join(threadid.at(i),NULL);
 	}
+    for(int i=0; i<T; i++){
+		pthread_join(threadid.at(i),NULL);
+	} 
 	//CALCULA A MÉDIA GERAL DE INATIVIDADE
 	calculateMedia();
 	//REMOVE OS USUÁRIOS INATIVOS

@@ -1,0 +1,7 @@
+gabriel 001 3 0.6
+julia 002 0 0.2
+amanda 003 21 0.3
+joao 004 41 0.9
+luiz 005 2 0.7
+joana 006 3 1
+eduardo 007 23 0.7
