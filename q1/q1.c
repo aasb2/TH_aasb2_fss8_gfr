@@ -38,11 +38,7 @@ void *counter(void *theadid){
 		pthread_mutex_unlock(&mutex1); //termina bloqueio
 		
 	}
-	//pthread_mutex_lock(&mutex2); 
-	//Impede que outra thread acesse primeiro a variável isFinished
-		
-	//pthread_mutex_unlock(&mutex2);	
-	//Desbloqueia a região
+	
 
 	pthread_exit(NULL);
 }
