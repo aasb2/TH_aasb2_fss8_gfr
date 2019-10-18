@@ -9,8 +9,8 @@ int INCOGNITAS; //A quantidade de incognitas deve ser igual ao valor corresponde
 int DIVISAO;
 
 //PREENCHER Matriz  Exemplo, --- Quatro incognitas, 4 equações
-int A[2][3] =  {{2,1,11},
-		{5,7,13}}; 
+int A[2][2] =  {{2,1},
+		{5,7}}; 
 int B[2] = {11,
 	    13};
 float X[4][2] = {{1,1},
@@ -36,7 +36,9 @@ int main() {
 	int i, T, I; int threadTal, cont = 0, Coluna = 0;
 	scanf("%d %d", &T, &I);   //Quantidade de Threads e Incognitas
 	if (T > I)
-		T = I;
+	{
+	   T = I;
+	}
 	THREADS = T;
 	INCOGNITAS = I;
 	DIVISAO = I/T;	
