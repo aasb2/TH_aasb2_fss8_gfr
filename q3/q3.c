@@ -9,14 +9,10 @@ int INCOGNITAS; //A quantidade de incognitas deve ser igual ao valor corresponde
 int DIVISAO;
 
 //PREENCHER Matriz  Exemplo, --- Quatro incognitas, 4 equações
-int A[4][4] =  {{1,0, 0, 3},
-		{0,1, 1,0},
-		{1,0, 3,0},
-		{0,0, 1,1}}; 
-int B[4] = {11,
-	    13, 
-	    5, 
-	    7};
+int A[2][3] =  {{2,1,11},
+		{5,7,13}}; 
+int B[2] = {11,
+	    13};
 float X[4][2] = {{1,1},
 		 {1,1},
 		 {1,1},
@@ -39,6 +35,8 @@ int main() {
 
 	int i, T, I; int threadTal, cont = 0, Coluna = 0;
 	scanf("%d %d", &T, &I);   //Quantidade de Threads e Incognitas
+	if (T > I)
+		T = I;
 	THREADS = T;
 	INCOGNITAS = I;
 	DIVISAO = I/T;	
@@ -49,11 +47,11 @@ int main() {
 		TC[z] = (int*) malloc (sizeof(int)*(DIVISAO+1));	//Mais uma, caso Alguma thread fique com mais incognitas que outra;
 	} 
 	
-	//Divide as incognitas igualmente entre as threads, caso não seja possível, adciona mais uma para a primeira thread cuidar, e para a proxima..., de modo que nenhuma thread vai ficar com duas incognitas a mais que outra.
+	//Divide as incognitas igualmente entre as threads, caso não seja possível, adiciona mais uma para a primeira thread cuidar, e para a proxima..., de modo que nenhuma thread vai ficar com duas incognitas a mais que outra.
 	for(int q = 0; q < INCOGNITAS; q++){
 		if(cont == THREADS){
-		Coluna++;
-		cont = 0;		
+			Coluna++;
+			cont = 0;
 		}
 		threadTal = q%THREADS;
 		TC[threadTal][Coluna] = q;
@@ -67,13 +65,13 @@ int main() {
 	}
 
 	pthread_t threads[THREADS]; 
-  	int *ids[THREADS]; 
+  	int *ids[THREADS];
 	pthread_barrier_init(&barrier, NULL, THREADS);	
 	
 	for(i = 0; i < THREADS; i++) {
 		ids[i] =(int *) malloc(sizeof(int)); 
 		*ids[i] = i;
-  	pthread_create(&threads[i],NULL,iteracao,(void *) ids[i]);  
+  		pthread_create(&threads[i],NULL,iteracao,(void *) ids[i]);  
 	}
   
   for(i = 0; i < THREADS; i++) { pthread_join(threads[i],NULL); }
