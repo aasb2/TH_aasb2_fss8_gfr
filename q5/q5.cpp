@@ -376,6 +376,7 @@ void vetMult(){
     
     cout << endl << endl << endl;
 
+    orgMat(matrixvet);
     cout << "-----------------------------------------------------" << endl << "MATRIZ RESULTANTE:" << endl;
 
     for (int i = 0; i < matrixhei; i++)
@@ -393,12 +394,8 @@ void vetMult(){
     }
 
     cout << "-----------------------------------------------------" << endl << "VETOR:" << endl;
-    cout << "| ";
     for (int i = 0; i < vetsize; i++)
-    {
-        cout << vet[i] << " ";
-    }
-    cout << "|" << endl;
+        cout << "|" << vet[i] << "|" << endl;
 
     cout << "-----------------------------------------------------" << endl;
     return;

@@ -4,12 +4,11 @@
 
 #define ITERACOES 1000
 //DIVISAO INCOGNITAS/THREADS
-//#define THREADS 1
 int THREADS;
-int INCOGNITAS;
+int INCOGNITAS; //A quantidade de incognitas deve ser igual ao valor correspondente na matriz exemplo;
 int DIVISAO;
 
-//PREENCHER Matriz  Exemplo, 
+//PREENCHER Matriz  Exemplo, --- Quatro incognitas, 4 equações
 int A[4][4] =  {{1,0, 0, 3},
 		{0,1, 1,0},
 		{1,0, 3,0},
@@ -21,7 +20,7 @@ int B[4] = {11,
 float X[4][2] = {{1,1},
 		 {1,1},
 		 {1,1},
-		 {1,1}}; //Solucoes Xi^(0) duplicadas,(Lado Esquerdo e lado direito irão intercalar durante a execução);
+		 {1,1}}; //Solucoes Xi^(0) duplicadas,(Lado Esquerdo e lado direito irão intercalar durante a execução), Uma vai ser Xi^(k), a outra Xi^(k+1), alternando a cada iteraçao;
 
 /*int A[2][2] =  {{2,1},
 		{5,7}}; 
@@ -29,8 +28,8 @@ int B[2] = {11,
 	    13};
 float X[2][2] = {{1,1},
 		 {1,1}};*/
-int **TC;
-int *Mais;
+int **TC;  //TC, guarda as Incognitas que a thread vai ser responsável, se quantidade de THREAADS = INCOGNITAS TC vai ser uma unica incognita para cada thread;
+int *Mais;  //Caso uma thread i cuide de mais uma incognita do que outra, Mais[i] = 1, se não, significa que todas as threads cuidam de quantidades iguais de incognitas, então 0;
 
 pthread_barrier_t barrier;
 
@@ -50,6 +49,7 @@ int main() {
 		TC[z] = (int*) malloc (sizeof(int)*(DIVISAO+1));	//Mais uma, caso Alguma thread fique com mais incognitas que outra;
 	} 
 	
+	//Divide as incognitas igualmente entre as threads, caso não seja possível, adciona mais uma para a primeira thread cuidar, e para a proxima..., de modo que nenhuma thread vai ficar com duas incognitas a mais que outra.
 	for(int q = 0; q < INCOGNITAS; q++){
 		if(cont == THREADS){
 		Coluna++;
@@ -57,7 +57,7 @@ int main() {
 		}
 		threadTal = q%THREADS;
 		TC[threadTal][Coluna] = q;
-		if(q >= (INCOGNITAS-(INCOGNITAS%THREADS))){
+		if(q >= (INCOGNITAS-(INCOGNITAS%THREADS))){ //Maior do que um numero divisivel igualmente entre as threads;
 			Mais[threadTal] = 1;		
 		}	
 		else{
@@ -99,29 +99,29 @@ void *iteracao(void *threadid){
 	int impar, par, id;
 	for (int i=0; i < ITERACOES; i++) {
 	
-	for(int k = 0; k < DIVISAO+MaisI; k++){
-	id = TC[idthread][k];  //Incognita que a thread é responsável.
-	ab = 0;
-	aii = A[id][id];
-	bi = B[id];
-	impar = i%2;
-	par = (impar+1)%2;
-	for(int j = 0; j < INCOGNITAS; j++){
-		aij = A[id][j];
-		xjk = X[j][impar];  //Seleciona Lado ESquerdo ou direito da Solucao;
-		if(j != id){
-		ab +=  aij*xjk;
+		for(int k = 0; k < DIVISAO+MaisI; k++){
+			id = TC[idthread][k];  //Incognita que a thread é responsável.
+			ab = 0;
+			aii = A[id][id];
+			bi = B[id];
+			impar = i%2;
+			par = (impar+1)%2;
+			for(int j = 0; j < INCOGNITAS; j++){ //Somatorio para AijXj^(k)
+				aij = A[id][j];
+				xjk = X[j][impar];  //Xj^(k);
+				if(j != id){
+					ab +=  aij*xjk; // Aij (tal que) j != i 
+				}
+			}
+			somatorio = ab;	
+			Form = (1/aii)*(bi-somatorio); //Fórmula Jacobiano
+			X[id][par] = Form;  //Xi^(k+1)
+			if(i == ITERACOES-1){
+				printf("Ultima Solucao Incognita %d = %f \n", id, Form);
+			}
 		}
-	}
-	somatorio = ab;	
-	Form = (1/aii)*(bi-somatorio);
-	X[id][par] = Form;
-	if(i == ITERACOES-1){
-	printf("Ultima Solucao Incognita %d = %f \n", id, Form);
-	}
-	}
-	pthread_barrier_wait(&barrier);
-  }
+		pthread_barrier_wait(&barrier);
+  	}
 
 	pthread_exit(NULL);
 }

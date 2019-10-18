@@ -3,7 +3,7 @@
 using namespace std;
 
 
-//PARA SER MAIS FÁCIL A LEITURA DEFINE FUNCTION COMO UMA FUNÇÃO void *(void*)
+//PARA SER MAIS FÁCIL A LEITURA , DEFINE FUNCTION COMO UMA FUNÇÃO void *(void*)
 typedef void*(*FUNCTION)(void *argument);
 
 //STRUCT QUE TERÁ O ARGUMENTO QUE SERÁ RECEBIDO PELAS THREADS
@@ -264,32 +264,33 @@ void *despachante(void *ignore){
 
 
 int main(){
-	init();
-	for(int i=0; i<N; i++)
-		cout<<available_threads[i]<<" ";
+	init(); //INICIALIZA AS ESTRUTURAS NECESSÁRIAS
 	cout<<endl;
 	pthread_t despachante_thread;
-	pthread_t prodt, conmt;
 	ARGUMENT *argument = new ARGUMENT;
 	//CRIA A THREAD DESPACHANTE
 	pthread_create(&despachante_thread,NULL,despachante,NULL);
 	
+	//TESTES
 	for(int i =0; i<10; i++){
 		cout<<agendarExecucao(ARGUMENT(funexec,10))<<endl;
-		cout<<"A"<<endl;
+		//cout<<"A"<<endl;
 	}
 	for(int i =0; i<10; i++){
 		cout<<pegarResultadoExecucao(i)<<endl;
-		cout<<"B"<<endl;
+		//cout<<"B"<<endl;
 	}
 	for(int i =0; i<10; i++){
 		cout<<agendarExecucao(ARGUMENT(funexec,10))<<endl;
-		cout<<"C"<<endl;
+		//cout<<"C"<<endl;
 	}
 	for(int i =0; i<10; i++){
 		cout<<pegarResultadoExecucao(i)<<endl;
-		cout<<"D"<<endl;
+		//cout<<"D"<<endl;
 	}
+
+
+	delete argument;
 	pthread_exit(NULL);
 
 }
