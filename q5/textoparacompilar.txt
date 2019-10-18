@@ -1,0 +1,5 @@
+Para criar o arquivo executável do código:
+g++ q5.cpp -o q5 -pthread
+
+Para iniciar o arquivo executável:
+./q5
